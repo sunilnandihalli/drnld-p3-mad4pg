@@ -124,43 +124,43 @@ class MAD4PG:
                     q_target_next = cur_agent.critic_target(next_state, action_next)
                     q_target_next = F.softmax(q_target_next, dim=1)
                 done_temp = torch.tensor(dones[agent_index]).float().to(device)
-                q_target_next_projected = self.distr_projection(q_target_next, sum_reward, done_temp, self.GAMMA ** self.num_mc_steps)
+                q_target_next_projected = self.distr_projection(q_target_next, sum_reward, done_temp,
+                                                                self.GAMMA ** self.num_mc_steps)
                 q_target_next = -F.log_softmax(q_expected, dim=1) * q_target_next_projected
                 error = q_target_next.sum(dim=1).mean().cpu().data
                 self.memory.add(error, (states[agent_index], actions[agent_index], sum_reward,
                                         next_states[agent_index], dones[agent_index]))
-                if dones[agent_index]:
-                    agent_experiences.states.clear()
-                    agent_experiences.rewards.clear()
-                    agent_experiences.actions.clear()
+            if dones[agent_index]:
+                agent_experiences.states.clear()
+                agent_experiences.rewards.clear()
+                agent_experiences.actions.clear()
 
         self.t_step = (self.t_step + 1) % self.UPDATE_EVERY
         if self.t_step == 0:
             # If enough samples are available in memory, get random subset and learn
             # print(self.memory.tree.n_entries)
             if self.memory.tree.n_entries > self.train_start:
+                common_experiences, idxs = self.sample()
                 for agent_index in range(len(self.mad4pg_agent)):
-                    # prioritized experience replay
-                    batch_not_ok = True
-                    while batch_not_ok:
-                        mini_batch, idxs, is_weights = self.memory.sample(self.BATCH_SIZE)
-                        mini_batch = np.array(mini_batch).transpose()
-                        if mini_batch.shape == (5, self.BATCH_SIZE):
-                            batch_not_ok = False
-                        statess = np.vstack([m for m in mini_batch[0] if m is not None])
-                        actionss = np.vstack([m for m in mini_batch[1] if m is not None])
-                        rewardss = np.vstack([m for m in mini_batch[2] if m is not None])
-                        next_statess = np.vstack([m for m in mini_batch[3] if m is not None])
-                        doness = np.vstack([m for m in mini_batch[4] if m is not None])
-                    # bool to binary
-                    doness = doness.astype(int)
-                    statess = torch.from_numpy(statess).float().to(device)
-                    actionss = torch.from_numpy(actionss).float().to(device)
-                    rewardss = torch.from_numpy(rewardss).float().to(device)
-                    next_statess = torch.from_numpy(next_statess).float().to(device)
-                    doness = torch.from_numpy(doness).float().to(device)
-                    experiences = (statess, actionss, rewardss, next_statess, doness)
-                    self.learn(self.mad4pg_agent[agent_index], experiences, idxs)
+                    self.learn(self.mad4pg_agent[agent_index], common_experiences, idxs)
+
+    def sample(self):
+        # prioritized experience replay
+        mini_batch, idxs, is_weights = self.memory.sample(self.BATCH_SIZE)
+        mini_batch = np.array(mini_batch).transpose()
+        statess = np.vstack([m for m in mini_batch[0] if m is not None])
+        actionss = np.vstack([m for m in mini_batch[1] if m is not None])
+        rewardss = np.vstack([m for m in mini_batch[2] if m is not None])
+        next_statess = np.vstack([m for m in mini_batch[3] if m is not None])
+        doness = np.vstack([m for m in mini_batch[4] if m is not None])
+        # bool to binary
+        doness = doness.astype(int)
+        statess = torch.from_numpy(statess).float().to(device)
+        actionss = torch.from_numpy(actionss).float().to(device)
+        rewardss = torch.from_numpy(rewardss).float().to(device)
+        next_statess = torch.from_numpy(next_statess).float().to(device)
+        doness = torch.from_numpy(doness).float().to(device)
+        return (statess, actionss, rewardss, next_statess, doness), idxs
 
     def learn(self, agent, experiences, idxs):
         """Update policy and value parameters using given batch of experience tuples.
