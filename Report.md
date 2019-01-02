@@ -9,11 +9,11 @@ Multi-Agent Distributed Distributional Deep Deterministic Policy Gradients (MAD4
 
 This is a off-policy actor-critic method based on DDPG with critic maintaining a belief over the ActionValue function instead of a single value for each action state pair.
 
-![alt text](https://github.com/d4pg/drnld-p3-mad4pg/blob/master/d4pg.jpg)
+![alt text](https://github.com/sunilnandihalli/drnld-p3-mad4pg/blob/master/d4pg.jpg)
 
 ## Multi-Agent Deep Deterministic Policy Gradients (MADDPG)
 
-![alt text](https://github.com/d4pg/drnld-p3-mad4pg/blob/master/maddpg.jpg)
+![alt text](https://github.com/sunilnandihalli/drnld-p3-mad4pg/blob/master/maddpg.jpg)
 
 
 
