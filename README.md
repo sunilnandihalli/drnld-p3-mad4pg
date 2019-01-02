@@ -75,7 +75,5 @@ python -m ipykernel install --user --name drlnd --display-name "drlnd"
   ### Train an agent
    Run the cells which contain the "train" function 
    
-  ### Testing the trained agent
-   Run the cells with "test the trained agent" to watch how agents trained by a particular algorithm behaves.
 
 
