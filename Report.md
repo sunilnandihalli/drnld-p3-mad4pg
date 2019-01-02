@@ -56,7 +56,7 @@ Linear Layer, Leaky Relu | N x 128
 Linear Layer | N x 51
 
 ## Training Results
-The goal was achieved in 6220 episodes. The graph is embedded in the ipython notebook.
+The goal was achieved in 7053 episodes. The graph is embedded in the ipython notebook.
 
 
 # Ideas for future work
