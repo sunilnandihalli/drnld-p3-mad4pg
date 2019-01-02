@@ -3,6 +3,7 @@ import numpy
 
 # SumTree
 # a binary tree data structure where the parent’s value is the sum of its children
+# borrowed from https://github.com/kelvin84hk/DRLND_P3_collab-compet/blob/master/SumTree.py
 class SumTree:
     write = 0
 
